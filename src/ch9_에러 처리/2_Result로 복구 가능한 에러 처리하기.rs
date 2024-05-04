@@ -1,4 +1,6 @@
 use std::fs::File;
+use std::io::ErrorKind;
+use std::io::Error;
 
 fn Result로_복구_불가능한_에러_처리하기() {
     print!("
@@ -12,7 +14,10 @@ fn Result로_복구_불가능한_에러_처리하기() {
     let 파일 = match Result_타입의_반환값 {
         Ok(file) => file,
         Err(error) => match error.kind() {
-            ErrorKind::NotFound => print!("흑흑 파일이 없어요 ㅜㅜ"),
+            ErrorKind::NotFound => {
+                println!("흑흑 파일이 없어요 ㅜㅜ");
+                return;
+            },
             other_error => {
                 panic!("Problem opening the file: {:?}", other_error);
             }
@@ -47,13 +52,13 @@ fn 에러_전파하기() {
     함수를 호출하는 코드 쪽으로 에러를 반환하여 그쪽에서 수행할 작업을 결정하는 방식
     \n");
 
-    fn 에러를_반환하는_함수_예시() -> Result<File, io::Error> {
+    fn 에러를_반환하는_함수_예시() -> Result<File, Error> {
         // 방법 1
-        let 파일 = File::open("없는 파일 ㅋ.txt");
+        File::open("없는 파일 ㅋ.txt");
 
-        let 결과파일 = match Result_타입의_반환값 {
-            Ok(_) => Ok(결과파일),
-            Err(e) => return Err(e),
+        let 결과파일: Result<File, Error> = match 파일 {
+            Ok(file) => Ok(file),
+            Err(e) => Err(e),
         };
 
         // 방법 2 (? 숏컷 버전)
